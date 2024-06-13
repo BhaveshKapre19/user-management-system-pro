@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Welcome to the User Management System</h1>
+        {% if user.is_authenticated %}
+            <p class="lead">Hello, {{ user.username }}!</p>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2>Your Uploaded Files</h2>
+                {% if user_files %}
+                    <ul class="list-group">
+                        {% for file in user_files %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ file.file.name }}
+                                <a href="{% url 'userfile_detail' file.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>You have not uploaded any files yet.</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'userfile_upload' %}" class="btn btn-primary mb-3">Upload New File</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Shared Files</h2>
+                {% if shared_files %}
+                    <ul class="list-group">
+                        {% for file in shared_files %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ file.file.name }} (Shared by {{ file.owner.username }})
+                                <a href="{% url 'userfile_detail' file.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files have been shared with you yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center">
+            <p>You are not logged in.</p>
+            <p><a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a> or <a href="{% url 'register' %}" class="btn btn-outline-secondary">Register</a></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

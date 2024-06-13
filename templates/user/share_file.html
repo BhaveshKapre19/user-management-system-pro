@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Share File</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="recipient" class="form-label">Recipient (Username or Email)</label>
+            <input type="text" id="recipient" name="recipient" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Share</button>
+        <a href="{% url 'userfile_detail' pk=file_id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#recipient').autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: '{% url "autocomplete_users" %}',
+                data: {
+                    term: request.term
+                },
+                dataType: 'json',
+                success: function(data) {
+                    response(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching autocomplete data:', error);
+                }
+            });
+        },
+        minLength: 1, // Minimum characters to trigger autocomplete
+        select: function(event, ui) {
+            console.log('Selected:', ui.item ? ui.item.label : 'Nothing selected');
+        }
+    });
+});
+</script>
+{% endblock %}

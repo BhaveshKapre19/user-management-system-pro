@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Files{% endblock %}
+
+{% block content %}
+<h2>Your Files</h2>
+<ul>
+    {% for user_file in user_files %}
+        <li>
+            <a href="{% url 'userfile_detail' user_file.pk %}">{{ user_file }}</a>
+            <a href="{% url 'userfile_delete' user_file.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'userfile_upload' %}" class="btn btn-primary">Upload New File</a>
+{% endblock %}
