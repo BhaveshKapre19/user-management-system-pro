@@ -1,4 +1,3 @@
-
 {% extends 'base.html' %}
 
 {% block title %}File Detail{% endblock %}
@@ -20,13 +19,24 @@
                     <h2>File: {{ user_file }}</h2>
                 </div>
                 <div class="card-body">
-                    <embed src="{{ user_file.file.url }}" type="application/pdf" width="100%" height="600px" />
+                    {% if file_type == 'image' %}
+                        <img src="{{ user_file.file.url }}" class="img-fluid" alt="File Preview">
+                    {% elif file_type == 'pdf' %}
+                        <embed src="{{ user_file.file.url }}" type="application/pdf" width="100%" height="600px" />
+                    {% elif file_type == 'document' %}
+                        <iframe src='{{user_file.file.url}}' width='100%' height='650px' frameborder='0'></iframe>
+                    {% else %}
+                        <p>File type not supported for preview.</p>
+                    {% endif %}
                 </div>
                 <div class="card-footer">
                     <div class="btn-group" role="group">
                         <a href="{% url 'share_file' user_file.pk %}" class="btn btn-primary">Share</a> 
                         &nbsp;
                         <a href="{% url 'userfile_delete' user_file.pk %}" class="btn btn-danger">Delete</a>
+                        &nbsp;
+                        <!-- Example edit button, adjust URL and styling as needed -->
+                        <a href="#" class="btn btn-info">Edit</a>
                     </div>
                 </div>
             </div>

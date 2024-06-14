@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse , HttpResponseNotFound
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -35,9 +35,9 @@ class RegisterView(FormView):
 
         user.save()
 
-        username = form.cleaned_data.get('username')
+        email = form.cleaned_data.get('email')
         raw_password = form.cleaned_data.get('password1')
-        user = authenticate(username=username, password=raw_password)
+        user = authenticate(email, password=raw_password)
         if user is not None:
             login(self.request, user)
             messages.success(self.request, 'Registration successful. You are now logged in.')
@@ -165,10 +165,32 @@ class UserFileCreateView(LoginRequiredMixin, View):
 class UserFileDetailView(LoginRequiredMixin, View):
     def get(self, request, pk):
         user_file = get_object_or_404(UserFiles, pk=pk)
+        
+        # Check permissions
         if user_file.owner != request.user and request.user not in user_file.allowed_users.all():
             messages.error(request, 'You do not have permission to view this file.')
             return redirect('userfile_list')
-        return render(request, 'user/userfile_detail.html', {'user_file': user_file})
+        
+        # Determine file type based on file extension
+        file_extension = user_file.file.name.split('.')[-1].lower()
+        file_type = None
+        
+        if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+            file_type = 'image'
+        elif file_extension == 'pdf':
+            file_type = 'pdf'
+        elif file_extension in ['docx', 'xlsx', 'txt']:
+            file_type = 'document'
+        else:
+            # Handle unsupported file types or unknown extensions
+            return HttpResponseNotFound('File type not supported.')
+        
+        context = {
+            'user_file': user_file,
+            'file_type': file_type,
+        }
+        
+        return render(request, 'user/userfile_detail.html', context)
 
 
 class UserFileDeleteView(LoginRequiredMixin, DeleteView):
